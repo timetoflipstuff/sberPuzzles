@@ -42,12 +42,9 @@ class NetworkService {
 
         let dispatchGroup = DispatchGroup()
         
-        let puzzleQueue = DispatchQueue(label: "Using .com.sber.puzzless doesn't work sooo", qos: .default, attributes: .concurrent)
-        
-        
             for i in 0..<urls.count {
                 dispatchGroup.enter()
-                puzzleQueue.async {
+                queue.async {
                 
                 let task = self.session.dataTask(with: urls[i]) { (data: Data?, response: URLResponse?, error: Error?) in
                     
@@ -60,6 +57,7 @@ class NetworkService {
                         return
                     }
                     results.append(img)
+                    print("img\(i)")
                     dispatchGroup.leave()
                 }
                 task.resume()
@@ -67,7 +65,7 @@ class NetworkService {
             
         }
 	
-        dispatchGroup.notify(queue: puzzleQueue) {
+        dispatchGroup.notify(queue: queue) {
             if let merged = ImagesServices.image(byCombining: results) {
                 completion(.success(merged))
             }
